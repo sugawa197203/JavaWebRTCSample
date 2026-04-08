@@ -36,6 +36,7 @@ public class ServerApp {
         Javalin ipApi = Javalin.create().start(ipApiPort);
         ipApi.get("/getip", ctx -> ctx.json(Map.of("ip", globalIp)));
         System.out.println("[server] /getip API started on port " + ipApiPort);
+        System.out.println("[server] /getip URL: http://localhost:" + ipApiPort + "/getip");
 
         Thread consoleThread = new Thread(this::runConsoleLoop, "server-console-loop");
         consoleThread.setDaemon(true);
@@ -85,6 +86,17 @@ public class ServerApp {
                 if (line == null) {
                     break;
                 }
+
+                if (isHttpRequestLine(line)) {
+                    writer.print("HTTP/1.1 400 Bad Request\r\n");
+                    writer.print("Content-Type: text/plain; charset=utf-8\r\n\r\n");
+                    writer.println("This port is for socket chat. Use /getip on port " + ipApiPort + ".");
+                    writer.flush();
+                    System.err.println("[server] HTTP request received on socket/chat port " + webrtcPort
+                        + ". Use http://localhost:" + ipApiPort + "/getip");
+                    break;
+                }
+
                 ChatMessage message = mapper.readValue(line, ChatMessage.class);
                 if ("client_message".equals(message.type)) {
                     // Client messages are visible only to the sender and server.
@@ -110,6 +122,16 @@ public class ServerApp {
         }
 
         clients.values().forEach(client -> client.writer.println(json));
+    }
+
+    private boolean isHttpRequestLine(String line) {
+        return line.startsWith("GET ")
+            || line.startsWith("POST ")
+            || line.startsWith("PUT ")
+            || line.startsWith("DELETE ")
+            || line.startsWith("PATCH ")
+            || line.startsWith("HEAD ")
+            || line.startsWith("OPTIONS ");
     }
 
     private static class ClientConnection {
