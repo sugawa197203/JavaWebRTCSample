@@ -23,6 +23,12 @@ java -jar .\build\libs\JavaWebRTCSample-1.0-SNAPSHOT.jar server 7000 8080
 java -jar .\build\libs\JavaWebRTCSample-1.0-SNAPSHOT.jar client http://<server-host>:8080 7000
 ```
 
+`serverApiBaseUrl` は `http://` 付きでも `host:port` でも指定できます。
+
+```powershell
+java -jar .\build\libs\JavaWebRTCSample-1.0-SNAPSHOT.jar client <server-host>:8080 7000
+```
+
 `/getip` レスポンス形式:
 
 ```json

@@ -37,5 +37,9 @@ public class Main {
         System.out.println("Usage:");
         System.out.println("  server <webrtcPort> <ipApiPort>");
         System.out.println("  client <serverApiBaseUrl> <serverWebrtcPort>");
+        System.out.println("Examples:");
+        System.out.println("  server 7000 8000");
+        System.out.println("  client http://example.com:8000 7000");
+        System.out.println("  client example.com:8000 7000");
     }
 }

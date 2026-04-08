@@ -18,7 +18,7 @@ public class ClientApp {
     private final ObjectMapper mapper = new ObjectMapper();
 
     public ClientApp(String serverApiBaseUrl, int serverWebRtcPort) {
-        this.serverApiBaseUrl = trimTrailingSlash(serverApiBaseUrl);
+        this.serverApiBaseUrl = normalizeServerApiBaseUrl(serverApiBaseUrl);
         this.serverWebRtcPort = serverWebRtcPort;
     }
 
@@ -84,8 +84,16 @@ public class ClientApp {
 
     private String fetchServerIp() throws Exception {
         HttpClient client = HttpClient.newHttpClient();
+        URI apiUri;
+        try {
+            apiUri = URI.create(serverApiBaseUrl + "/getip");
+        } catch (IllegalArgumentException ex) {
+            throw new IllegalArgumentException("Invalid serverApiBaseUrl: '" + serverApiBaseUrl
+                + "'. Use host, http://host, or http://host:port format.", ex);
+        }
+
         HttpRequest request = HttpRequest.newBuilder()
-            .uri(URI.create(serverApiBaseUrl + "/getip"))
+            .uri(apiUri)
             .GET()
             .build();
 
@@ -107,6 +115,19 @@ public class ClientApp {
             return value.substring(0, value.length() - 1);
         }
         return value;
+    }
+
+    private static String normalizeServerApiBaseUrl(String input) {
+        String value = input == null ? "" : input.trim();
+        if (value.isEmpty()) {
+            throw new IllegalArgumentException("serverApiBaseUrl must not be empty");
+        }
+
+        if (!value.contains("://")) {
+            value = "http://" + value;
+        }
+
+        return trimTrailingSlash(value);
     }
 }
 
