@@ -23,7 +23,11 @@ public class ClientApp {
     }
 
     public void start() throws Exception {
-        WebRtcRuntime.ensureLibraryPresent();
+        String webRtcIssue = WebRtcRuntime.diagnoseAvailability();
+        if (webRtcIssue != null) {
+            System.err.println("[client] warning: " + webRtcIssue);
+            System.err.println("[client] warning: continuing in socket-chat mode.");
+        }
 
         String serverIp = fetchServerIp();
         String clientId = UUID.randomUUID().toString();

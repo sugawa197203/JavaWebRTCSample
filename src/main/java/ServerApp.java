@@ -24,7 +24,11 @@ public class ServerApp {
     }
 
     public void start() throws Exception {
-        WebRtcRuntime.ensureLibraryPresent();
+        String webRtcIssue = WebRtcRuntime.diagnoseAvailability();
+        if (webRtcIssue != null) {
+            System.err.println("[server] warning: " + webRtcIssue);
+            System.err.println("[server] warning: continuing in socket-chat mode.");
+        }
 
         String globalIp = GlobalIpResolver.resolveByStun();
         System.out.println("[server] Resolved global IP: " + globalIp);
